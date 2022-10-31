@@ -1,0 +1,10 @@
+20:31:25 **** Incremental Build of configuration Debug for project L4_IOT_Sensors ****
+make -j4 all 
+arm-none-eabi-size   L4_IOT_Sensors.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27316	    284	   3684	  31284	   7a34	L4_IOT_Sensors.elf
+Finished building: default.size.stdout
+ 
+
+20:31:26 Build Finished. 0 errors, 0 warnings. (took 703ms)
+

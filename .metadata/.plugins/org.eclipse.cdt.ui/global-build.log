@@ -1,28 +1,21 @@
-11:08:25 **** Incremental Build of configuration Debug for project G0_LED_1 ****
+20:31:11 **** Incremental Build of configuration Debug for project L4_IOT_Sensors ****
 make -j4 all 
-arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
-arm-none-eabi-gcc -o "G0_LED_1.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\ALUNO\Documents\IIoT 2022.1 STM32\ufcg-iiot-predictive-management-stm32\G0_LED_1\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="G0_LED_1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: G0_LED_1.elf
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L475xx -c -I../Core/Inc -I"C:/Users/Mayra/Desktop/UFCG/IIoT/Sprint 2/ufcg-iiot-predictive-management-stm32/L4_IOT_Sensors/Drivers/BSP/B-L475E-IOT01" -I"C:/Users/Mayra/Desktop/UFCG/IIoT/Sprint 2/ufcg-iiot-predictive-management-stm32/L4_IOT_Sensors/Drivers/BSP" -I"C:/Users/Mayra/Desktop/UFCG/IIoT/Sprint 2/ufcg-iiot-predictive-management-stm32/L4_IOT_Sensors/Drivers/Components/hts221" -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "L4_IOT_Sensors.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mayra\Desktop\UFCG\IIoT\Sprint 2\ufcg-iiot-predictive-management-stm32\L4_IOT_Sensors\STM32L475VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="L4_IOT_Sensors.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: L4_IOT_Sensors.elf
  
-arm-none-eabi-size   G0_LED_1.elf 
-arm-none-eabi-objdump -h -S  G0_LED_1.elf  > "G0_LED_1.list"
+arm-none-eabi-size   L4_IOT_Sensors.elf 
+arm-none-eabi-objdump -h -S  L4_IOT_Sensors.elf  > "L4_IOT_Sensors.list"
    text	   data	    bss	    dec	    hex	filename
-   5764	     20	   1572	   7356	   1cbc	G0_LED_1.elf
+  27316	    284	   3684	  31284	   7a34	L4_IOT_Sensors.elf
 Finished building: default.size.stdout
  
-Finished building: G0_LED_1.list
+Finished building: L4_IOT_Sensors.list
  
-11:08:38 **** Incremental Build of configuration Debug for project G0_LED_1 ****
+20:31:25 **** Incremental Build of configuration Debug for project L4_IOT_Sensors ****
 make -j4 all 
-arm-none-eabi-size   G0_LED_1.elf 
+arm-none-eabi-size   L4_IOT_Sensors.elf 
    text	   data	    bss	    dec	    hex	filename
-   5764	     20	   1572	   7356	   1cbc	G0_LED_1.elf
-Finished building: default.size.stdout
- 
-11:08:51 **** Incremental Build of configuration Debug for project G0_LED_1 ****
-make -j4 all 
-arm-none-eabi-size   G0_LED_1.elf 
-   text	   data	    bss	    dec	    hex	filename
-   5764	     20	   1572	   7356	   1cbc	G0_LED_1.elf
+  27316	    284	   3684	  31284	   7a34	L4_IOT_Sensors.elf
 Finished building: default.size.stdout
  

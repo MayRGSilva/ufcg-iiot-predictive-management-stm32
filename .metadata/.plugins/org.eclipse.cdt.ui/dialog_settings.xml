@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
+	<item key="org.eclipse.cdt.utils.ui.controls.FileListControl" value="C:\Users\Mayra\Desktop\UFCG\IIoT\Sprint 2\ufcg-iiot-predictive-management-stm32\L4_IOT_Sensors\Drivers\Components\hts221"/>
 	<section name="completion_proposal_size">
 	</section>
 	<section name="org.eclipse.cdt.ui.text.hover.CMacroExpansionExploration">
@@ -22,5 +23,8 @@
 		<item key="y" value="66"/>
 		<item key="width" value="565"/>
 		<item key="height" value="681"/>
+	</section>
+	<section name="OptionalMessageDialog.hide.">
+		<item key="askReindex.detail" value="0"/>
 	</section>
 </section>
