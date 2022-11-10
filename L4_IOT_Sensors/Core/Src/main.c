@@ -1,30 +1,45 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2022 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2022 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "stdbool.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+//Display oled I2C
+#include "ssd1306.h"
+#include "ssd1306_tests.h"
+
+//Drivers
 #include "stm32l475e_iot01.h"
-#include "stm32l475e_iot01_tsensor.h"
 #include <math.h>
 #include <stdio.h>
+
+//Temperature sensor
+#include "stm32l475e_iot01_tsensor.h"
+
+//Accelerometer sensor
+#include "stm32l475e_iot01_accelero.h"
+
+//valor rms
+#include "valorRMS.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,14 +57,9 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-float temp_value = 0;  // Measured temperature value
-char str_tmp[100] = ""; // Formatted message to display the temperature value
-uint8_t msg1[] = "****** Temperature values measurement ******\n\n\r";
-uint8_t msg2[] = "=====> Initialize Temperature sensor HTS221 \r\n";
-uint8_t msg3[] = "=====> Temperature sensor HTS221 initialized \r\n ";
-
 DFSDM_Channel_HandleTypeDef hdfsdm1_channel1;
 
+I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
 QSPI_HandleTypeDef hqspi;
@@ -63,18 +73,36 @@ PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
 
+//Temperature sensor
+float temp_value = 0;  // Measured temperature value
+char str_tmp[100] = ""; // Formatted message to display the temperature value
+char str_tmp2[100] = "";
+uint8_t msg1[] = "****** Temperature values measurement ******\n\n\r";
+uint8_t msg2[] = "=====> Initialize Temperature sensor HTS221 \r\n";
+uint8_t msg3[] = "=====> Temperature sensor HTS221 initialized \r\n ";
+
+//Accelerometer sensor
+int16_t acelerometer_value[3] = { 0 }; // Measured gyroscope value
+char str_acel1[100] = ""; // Formatted message to display the gyroscope value
+char str_acel2[100] = ""; // Formatted message to display the gyroscope value
+char str_acel3[100] = ""; // Formatted message to display the gyroscope value
+uint8_t msg7[] = "****** Acelerometer values measurement ******\n\n\r";
+uint8_t msg8[] = "=====> Initialize Acelerometer sensor HTS221 \r\n";
+uint8_t msg9[] = "=====> Acelerometer sensor LSM6DSL initialized \r\n ";
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DFSDM1_Init(void);
-static void MX_I2C2_Init(void);
 static void MX_QUADSPI_Init(void);
 static void MX_SPI3_Init(void);
-static void MX_USART1_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
+static void MX_I2C1_Init(void);
+static void MX_USART1_UART_Init(void);
+static void MX_I2C2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -113,38 +141,188 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DFSDM1_Init();
-  MX_I2C2_Init();
   MX_QUADSPI_Init();
   MX_SPI3_Init();
-  MX_USART1_UART_Init();
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
+  MX_I2C1_Init();
+  MX_USART1_UART_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
-  HAL_UART_Transmit(&huart1,msg1,sizeof(msg1),1000);
-  HAL_UART_Transmit(&huart1,msg2,sizeof(msg2),1000);
-  BSP_TSENSOR_Init();
-  HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),1000);
+
+	//Temperature Sensor
+	HAL_UART_Transmit(&huart1, msg1, sizeof(msg1), 1000);
+	HAL_UART_Transmit(&huart1, msg2, sizeof(msg2), 1000);
+	BSP_TSENSOR_Init();
+	HAL_UART_Transmit(&huart1, msg3, sizeof(msg3), 1000);
+
+	//Accelerometer Sensor
+	HAL_UART_Transmit(&huart1, msg7, sizeof(msg7), 1000);
+	HAL_UART_Transmit(&huart1, msg8, sizeof(msg8), 1000);
+	BSP_ACCELERO_Init();
+	HAL_UART_Transmit(&huart1, msg9, sizeof(msg9), 1000);
+
+	//Display oled i2c
+	ssd1306_Init();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+
+	float buf_temp[10] = {};
+	int i = 0;
+	bool fullArray = false;
+	float new_temp = 0;
+
+	while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
-	  // Temperature sensor
-	  temp_value = BSP_TSENSOR_ReadTemp();
-	  int tmpInt1 = temp_value;
-	  float tmpFrac = temp_value - tmpInt1;
-	  int tmpInt2 = trunc(tmpFrac * 100);
-	  snprintf(str_tmp,100," TEMPERATURE = %d.%02d\n\r", tmpInt1, tmpInt2);
-	  HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),1000);
-	  HAL_Delay(1000);
-  }
-  /* USER CODE END 3 */
+		//Temperature Sensor
+		temp_value = BSP_TSENSOR_ReadTemp();
+		int tmpInt1 = temp_value;
+		float tmpFrac = temp_value - tmpInt1;
+		int tmpInt2 = trunc(tmpFrac * 100);
+		snprintf(str_tmp, 100, " TEMPERATURE = %d.%02d\n\r", tmpInt1, tmpInt2);
+		HAL_UART_Transmit(&huart1, (uint8_t*) str_tmp, sizeof(str_tmp), 1000);
+
+
+
+
+		//Accelerometer Sensor
+		BSP_ACCELERO_AccGetXYZ(acelerometer_value);
+		int acelXInt1 = acelerometer_value[0];
+		float acelXFrac = acelerometer_value[0] - acelXInt1;
+		int acelXInt2 = trunc(acelXFrac * 100);
+
+		int acelYInt1 = acelerometer_value[1];
+		float acelYFrac = acelerometer_value[1] - acelYInt1;
+		int acelYInt2 = trunc(acelYFrac * 100);
+
+		int acelZInt1 = acelerometer_value[2];
+		float acelZFrac = acelerometer_value[2] - acelZInt1;
+		int acelZInt2 = trunc(acelZFrac * 100);
+
+		snprintf(str_acel1, 100, " ACEL_X = %d.%02d\n\r", acelXInt1, acelXInt2);
+		snprintf(str_acel2, 100, " ACEL_Y = %d.%02d\n\r", acelYInt1, acelYInt2);
+		snprintf(str_acel3, 100, " ACEL_Z = %d.%02d\n\n\r", acelZInt1,
+				acelZInt2);
+		HAL_UART_Transmit(&huart1, (uint8_t*) str_acel1, sizeof(str_acel1),
+				1000);
+		HAL_UART_Transmit(&huart1, (uint8_t*) str_acel2, sizeof(str_acel2),
+				1000);
+		HAL_UART_Transmit(&huart1, (uint8_t*) str_acel3, sizeof(str_acel3),
+				1000);
+
+
+		//Valores em RMS
+
+		// Criação do buffer de temperatura
+
+
+
+			buf_temp[i] = temp_value;
+			i++;
+
+			if(fullArray){
+				new_temp = valorRMS(buf_temp, 10);
+			}
+			else{
+				new_temp = valorRMS(buf_temp,i);
+		 }
+
+			if(i == 10){
+				i = 0;
+				fullArray = true;
+			}
+
+
+		int NtmpInt1 = new_temp;
+		float NtmpFrac = new_temp - NtmpInt1;
+		int NtmpInt2 = trunc(NtmpFrac * 100);
+		snprintf(str_tmp2, 100, " RMS TEMPERATURE = %d.%02d\n\r", NtmpInt1, NtmpInt2);
+		HAL_UART_Transmit(&huart1, (uint8_t*) str_tmp2, sizeof(str_tmp2), 1000);
 }
+
+	/*
+	// Criação do buffer de temperatura
+
+			int buf_temp[10] = {};
+			int i = 0;
+			bool fullArray = false;
+			// float new_temp = 0;
+
+				buf_temp[i] = temp_value;
+				i++;
+
+				if(fullArray){
+					float new_temp = valorRMS(buf_temp, 10);
+				}
+				else{
+					float new_temp = valorRMS(buf_temp,i);
+				}
+
+				if(i == 10){
+					i = 0;
+					fullArray = true;
+				}
+			}
+
+// Criação do buffer de temperatura
+
+		int buf_temp[10] = {};
+		int i = 0;
+		bool fullArray = false;
+		// float new_temp = 0;
+
+			buf_temp[i] = temp_value;
+			i++;
+
+			if(fullArray){
+				float new_temp = valorRMS(buf_temp, 10);
+			}
+			else{
+				float new_temp = valorRMS(buf_temp,i);
+			}
+
+			if(i == 10){
+				i = 0;
+				fullArray = true;
+			}
+		}
+
+*/
+		//Display oled i2c
+
+		ssd1306_SetCursor(0, 0);
+		// ssd1306_WriteString(str_tmp, Font_6x8, Black);
+		// ssd1306_WriteString(new_temp, Font_6x8, Black);
+		ssd1306_SetCursor(0, 10);
+		ssd1306_WriteString(str_acel1, Font_6x8, Black);
+		ssd1306_SetCursor(0,20);
+		ssd1306_WriteString(str_acel2, Font_6x8, Black);
+		ssd1306_SetCursor(0, 30);
+		ssd1306_WriteString(str_acel3, Font_6x8, Black);
+		ssd1306_UpdateScreen();
+		HAL_Delay(1000);
+
+
+
+
+/*
+
+		ssd1306_SetCursor(0, 0);
+	    ssd1306_WriteString(str_tmp, Font_6x8, Black);
+		ssd1306_SetCursor(0, 10);
+		ssd1306_WriteString(str_tmp2, Font_6x8, Black);
+		ssd1306_UpdateScreen();
+		HAL_Delay(1000);*/
+
+	}
+  /* USER CODE END 3 */
+
 
 /**
   * @brief System Clock Configuration
@@ -245,6 +423,54 @@ static void MX_DFSDM1_Init(void)
 }
 
 /**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.Timing = 0x00702991;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
+}
+
+/**
   * @brief I2C2 Initialization Function
   * @param None
   * @retval None
@@ -260,7 +486,7 @@ static void MX_I2C2_Init(void)
 
   /* USER CODE END I2C2_Init 1 */
   hi2c2.Instance = I2C2;
-  hi2c2.Init.Timing = 0x00000E14;
+  hi2c2.Init.Timing = 0x00702991;
   hi2c2.Init.OwnAddress1 = 0;
   hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -640,14 +866,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ARD_D15_Pin ARD_D14_Pin */
-  GPIO_InitStruct.Pin = ARD_D15_Pin|ARD_D14_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
@@ -668,11 +886,10 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1) {
+	}
   /* USER CODE END Error_Handler_Debug */
 }
 

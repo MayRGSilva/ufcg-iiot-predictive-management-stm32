@@ -34,12 +34,19 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi_ex.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h \
- C:/Users/Mayra/Desktop/UFCG/IIoT/Sprint\ 2/ufcg-iiot-predictive-management-stm32/L4_IOT_Sensors/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h \
- C:/Users/Mayra/Desktop/UFCG/IIoT/Sprint\ 2/ufcg-iiot-predictive-management-stm32/L4_IOT_Sensors/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_tsensor.h \
- C:/Users/Mayra/Desktop/UFCG/IIoT/Sprint\ 2/ufcg-iiot-predictive-management-stm32/L4_IOT_Sensors/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h \
- c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\hts221\hts221.h \
- c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\common\hsensor.h \
- c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\common\tsensor.h
+ ../Core/Inc/ssd1306.h ../Core/Inc/ssd1306_conf.h \
+ ../Core/Inc/ssd1306_fonts.h ../Core/Inc/ssd1306_tests.h \
+ C:/Users/Bruna/STM32CubeIDE/workspace_1.10.1/L4_IOT_SENSORS/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h \
+ C:/Users/Bruna/STM32CubeIDE/workspace_1.10.1/L4_IOT_SENSORS/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_tsensor.h \
+ C:/Users/Bruna/STM32CubeIDE/workspace_1.10.1/L4_IOT_SENSORS/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h \
+ c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\hts221\hts221.h \
+ c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\common\hsensor.h \
+ c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\common\tsensor.h \
+ C:/Users/Bruna/STM32CubeIDE/workspace_1.10.1/L4_IOT_SENSORS/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_accelero.h \
+ c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\lsm6dsl\lsm6dsl.h \
+ c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\common\accelero.h \
+ c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\common\gyro.h \
+ ../Core/Inc/valorRMS.h
 ../Core/Inc/main.h:
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h:
 ../Core/Inc/stm32l4xx_hal_conf.h:
@@ -76,9 +83,18 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi_ex.h:
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h:
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h:
-C:/Users/Mayra/Desktop/UFCG/IIoT/Sprint\ 2/ufcg-iiot-predictive-management-stm32/L4_IOT_Sensors/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h:
-C:/Users/Mayra/Desktop/UFCG/IIoT/Sprint\ 2/ufcg-iiot-predictive-management-stm32/L4_IOT_Sensors/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_tsensor.h:
-C:/Users/Mayra/Desktop/UFCG/IIoT/Sprint\ 2/ufcg-iiot-predictive-management-stm32/L4_IOT_Sensors/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h:
-c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\hts221\hts221.h:
-c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\common\hsensor.h:
-c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\common\tsensor.h:
+../Core/Inc/ssd1306.h:
+../Core/Inc/ssd1306_conf.h:
+../Core/Inc/ssd1306_fonts.h:
+../Core/Inc/ssd1306_tests.h:
+C:/Users/Bruna/STM32CubeIDE/workspace_1.10.1/L4_IOT_SENSORS/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h:
+C:/Users/Bruna/STM32CubeIDE/workspace_1.10.1/L4_IOT_SENSORS/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_tsensor.h:
+C:/Users/Bruna/STM32CubeIDE/workspace_1.10.1/L4_IOT_SENSORS/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h:
+c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\hts221\hts221.h:
+c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\common\hsensor.h:
+c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\common\tsensor.h:
+C:/Users/Bruna/STM32CubeIDE/workspace_1.10.1/L4_IOT_SENSORS/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_accelero.h:
+c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\lsm6dsl\lsm6dsl.h:
+c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\common\accelero.h:
+c:\users\bruna\stm32cubeide\workspace_1.10.1\l4_iot_sensors\drivers\bsp\components\common\gyro.h:
+../Core/Inc/valorRMS.h:

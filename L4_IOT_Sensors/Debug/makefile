@@ -10,31 +10,31 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include Drivers/STM32L4xx_HAL_Driver/Src/subdir.mk
--include Drivers/Components/wm8994/subdir.mk
--include Drivers/Components/stmpe811/subdir.mk
--include Drivers/Components/stmpe1600/subdir.mk
--include Drivers/Components/st7789h2/subdir.mk
--include Drivers/Components/st7735/subdir.mk
--include Drivers/Components/st25dv/subdir.mk
--include Drivers/Components/ov9655/subdir.mk
--include Drivers/Components/mfxstm32l152/subdir.mk
--include Drivers/Components/m24sr/subdir.mk
--include Drivers/Components/lsm6dsl/subdir.mk
--include Drivers/Components/lsm303dlhc/subdir.mk
--include Drivers/Components/lsm303c/subdir.mk
--include Drivers/Components/ls016b8uy/subdir.mk
--include Drivers/Components/lps22hb/subdir.mk
--include Drivers/Components/lis3mdl/subdir.mk
--include Drivers/Components/l3gd20/subdir.mk
--include Drivers/Components/hx8347i/subdir.mk
--include Drivers/Components/hx8347g/subdir.mk
--include Drivers/Components/hts221/subdir.mk
--include Drivers/Components/ft6x06/subdir.mk
--include Drivers/Components/ft5336/subdir.mk
--include Drivers/Components/ft3x67/subdir.mk
--include Drivers/Components/cy8c4014lqi/subdir.mk
--include Drivers/Components/cs43l22/subdir.mk
--include Drivers/Components/cs42l51/subdir.mk
+-include Drivers/BSP/Components/wm8994/subdir.mk
+-include Drivers/BSP/Components/stmpe811/subdir.mk
+-include Drivers/BSP/Components/stmpe1600/subdir.mk
+-include Drivers/BSP/Components/st7789h2/subdir.mk
+-include Drivers/BSP/Components/st7735/subdir.mk
+-include Drivers/BSP/Components/st25dv/subdir.mk
+-include Drivers/BSP/Components/ov9655/subdir.mk
+-include Drivers/BSP/Components/mfxstm32l152/subdir.mk
+-include Drivers/BSP/Components/m24sr/subdir.mk
+-include Drivers/BSP/Components/lsm6dsl/subdir.mk
+-include Drivers/BSP/Components/lsm303dlhc/subdir.mk
+-include Drivers/BSP/Components/lsm303c/subdir.mk
+-include Drivers/BSP/Components/ls016b8uy/subdir.mk
+-include Drivers/BSP/Components/lps22hb/subdir.mk
+-include Drivers/BSP/Components/lis3mdl/subdir.mk
+-include Drivers/BSP/Components/l3gd20/subdir.mk
+-include Drivers/BSP/Components/hx8347i/subdir.mk
+-include Drivers/BSP/Components/hx8347g/subdir.mk
+-include Drivers/BSP/Components/hts221/subdir.mk
+-include Drivers/BSP/Components/ft6x06/subdir.mk
+-include Drivers/BSP/Components/ft5336/subdir.mk
+-include Drivers/BSP/Components/ft3x67/subdir.mk
+-include Drivers/BSP/Components/cy8c4014lqi/subdir.mk
+-include Drivers/BSP/Components/cs43l22/subdir.mk
+-include Drivers/BSP/Components/cs42l51/subdir.mk
 -include Drivers/BSP/B-L475E-IOT01/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
@@ -60,34 +60,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := L4_IOT_Sensors
+BUILD_ARTIFACT_NAME := L4_IOT_SENSORS
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-L4_IOT_Sensors.elf \
+L4_IOT_SENSORS.elf \
 
 MAP_FILES += \
-L4_IOT_Sensors.map \
+L4_IOT_SENSORS.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-L4_IOT_Sensors.list \
+L4_IOT_SENSORS.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: L4_IOT_Sensors.elf secondary-outputs
+main-build: L4_IOT_SENSORS.elf secondary-outputs
 
 # Tool invocations
-L4_IOT_Sensors.elf L4_IOT_Sensors.map: $(OBJS) $(USER_OBJS) C:\Users\Mayra\Desktop\UFCG\IIoT\Sprint\ 2\ufcg-iiot-predictive-management-stm32\L4_IOT_Sensors\STM32L475VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "L4_IOT_Sensors.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Mayra\Desktop\UFCG\IIoT\Sprint 2\ufcg-iiot-predictive-management-stm32\L4_IOT_Sensors\STM32L475VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="L4_IOT_Sensors.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+L4_IOT_SENSORS.elf L4_IOT_SENSORS.map: $(OBJS) $(USER_OBJS) C:\Users\Bruna\STM32CubeIDE\workspace_1.10.1\L4_IOT_SENSORS\STM32L475VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "L4_IOT_SENSORS.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Bruna\STM32CubeIDE\workspace_1.10.1\L4_IOT_SENSORS\STM32L475VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="L4_IOT_SENSORS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -96,14 +96,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-L4_IOT_Sensors.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "L4_IOT_Sensors.list"
+L4_IOT_SENSORS.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "L4_IOT_SENSORS.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) L4_IOT_Sensors.elf L4_IOT_Sensors.list L4_IOT_Sensors.map default.size.stdout
+	-$(RM) L4_IOT_SENSORS.elf L4_IOT_SENSORS.list L4_IOT_SENSORS.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

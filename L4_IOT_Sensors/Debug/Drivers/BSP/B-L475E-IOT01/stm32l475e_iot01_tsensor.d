@@ -37,9 +37,9 @@ Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_tsensor.o: \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi_ex.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h \
- c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\hts221\hts221.h \
- c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\common\hsensor.h \
- c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\common\tsensor.h
+ ../Drivers/BSP/B-L475E-IOT01/../Components/hts221/hts221.h \
+ ../Drivers/BSP/B-L475E-IOT01/../Components/hts221/../Common/hsensor.h \
+ ../Drivers/BSP/B-L475E-IOT01/../Components/hts221/../Common/tsensor.h
 ../Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_tsensor.h:
 ../Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h:
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h:
@@ -77,6 +77,6 @@ Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_tsensor.o: \
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi_ex.h:
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h:
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h:
-c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\hts221\hts221.h:
-c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\common\hsensor.h:
-c:\users\mayra\desktop\ufcg\iiot\sprint\ 2\ufcg-iiot-predictive-management-stm32\l4_iot_sensors\drivers\components\common\tsensor.h:
+../Drivers/BSP/B-L475E-IOT01/../Components/hts221/hts221.h:
+../Drivers/BSP/B-L475E-IOT01/../Components/hts221/../Common/hsensor.h:
+../Drivers/BSP/B-L475E-IOT01/../Components/hts221/../Common/tsensor.h:
