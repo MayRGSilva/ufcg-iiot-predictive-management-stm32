@@ -59,8 +59,6 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define M24SR64_Y_RF_DISABLE_Pin GPIO_PIN_2
 #define M24SR64_Y_RF_DISABLE_GPIO_Port GPIOE
-#define USB_OTG_FS_OVRCR_EXTI3_Pin GPIO_PIN_3
-#define USB_OTG_FS_OVRCR_EXTI3_GPIO_Port GPIOE
 #define M24SR64_Y_GPO_Pin GPIO_PIN_4
 #define M24SR64_Y_GPO_GPIO_Port GPIOE
 #define SPSGRF_915_GPIO3_EXTI5_Pin GPIO_PIN_5
@@ -204,8 +202,6 @@ void Error_Handler(void);
 #define PMOD_UART2_RX_GPIO_Port GPIOD
 #define STSAFE_A100_RESET_Pin GPIO_PIN_7
 #define STSAFE_A100_RESET_GPIO_Port GPIOD
-#define SYS_JTD0_SWO_Pin GPIO_PIN_3
-#define SYS_JTD0_SWO_GPIO_Port GPIOB
 #define ARD_D5_Pin GPIO_PIN_4
 #define ARD_D5_GPIO_Port GPIOB
 #define SPSGRF_915_SPI3_CSN_Pin GPIO_PIN_5

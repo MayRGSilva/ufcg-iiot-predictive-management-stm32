@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stdbool.h"
+#include "stdio.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -67,6 +68,7 @@ QSPI_HandleTypeDef hqspi;
 SPI_HandleTypeDef hspi3;
 
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
@@ -77,6 +79,8 @@ PCD_HandleTypeDef hpcd_USB_OTG_FS;
 float temp_value = 0;  // Measured temperature value
 char str_tmp[100] = ""; // Formatted message to display the temperature value
 char str_tmp2[100] = "";
+char min_temp[10] = "";
+char max_temp[10] = "";
 uint8_t msg1[] = "****** Temperature values measurement ******\n\n\r";
 uint8_t msg2[] = "=====> Initialize Temperature sensor HTS221 \r\n";
 uint8_t msg3[] = "=====> Temperature sensor HTS221 initialized \r\n ";
@@ -103,6 +107,7 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C2_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -148,6 +153,7 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   MX_I2C2_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
 	//Temperature Sensor
@@ -162,6 +168,11 @@ int main(void)
 	BSP_ACCELERO_Init();
 	HAL_UART_Transmit(&huart1, msg9, sizeof(msg9), 1000);
 
+
+
+	// Interrupções
+
+
 	//Display oled i2c
 	ssd1306_Init();
 
@@ -172,7 +183,7 @@ int main(void)
 
 	float buf_temp[10] = {};
 	int i = 0;
-	bool fullArray = false;
+	bool fullArray1 = false;
 	float new_temp = 0;
 
 	while (1) {
@@ -188,6 +199,46 @@ int main(void)
 		snprintf(str_tmp, 100, " TEMPERATURE = %d.%02d\n\r", tmpInt1, tmpInt2);
 		HAL_UART_Transmit(&huart1, (uint8_t*) str_tmp, sizeof(str_tmp), 1000);
 
+		//Valores em RMS
+		// Criação do buffer de temperatura
+
+			buf_temp[i] = temp_value;
+			float min =buf_temp[0],max =buf_temp[0];
+			i++;
+
+			if(fullArray1){
+				new_temp = valorRMS(buf_temp, 10);
+			}
+			else{
+				new_temp = valorRMS(buf_temp,i);
+		 }
+
+			if(i == 10){
+				i = 0;
+				fullArray1 = true;
+			}
+			if(buf_temp[i] > max ){
+				//min = buf_temp[i-1];
+				max = buf_temp[i];
+			}
+			if( buf_temp[i]< min ){
+				min = buf_temp[i];
+				//max =  buf_temp[i-1];
+			}
+
+		int min1 = min;
+		float minFrac = min - min1;
+		int min2 = trunc(minFrac * 100);
+
+		int max1 = min;
+		float maxFrac = max - max1;
+		int max2 = trunc(maxFrac * 100);
+
+
+		snprintf(str_tmp2, 100, "TEMPERATURE = %d.%02d\n\r", tmpInt1, tmpInt2);
+		snprintf(min_temp, 100, "MIN = %d.%02d\n\r", min1, min2);
+		snprintf(max_temp, 100, "MAX = %d.%02d\n\r", max1, max2);
+		HAL_UART_Transmit(&huart1, (uint8_t*) str_tmp2, sizeof(str_tmp2), 1000);
 
 
 
@@ -207,118 +258,102 @@ int main(void)
 
 		snprintf(str_acel1, 100, " ACEL_X = %d.%02d\n\r", acelXInt1, acelXInt2);
 		snprintf(str_acel2, 100, " ACEL_Y = %d.%02d\n\r", acelYInt1, acelYInt2);
-		snprintf(str_acel3, 100, " ACEL_Z = %d.%02d\n\n\r", acelZInt1,
-				acelZInt2);
-		HAL_UART_Transmit(&huart1, (uint8_t*) str_acel1, sizeof(str_acel1),
-				1000);
-		HAL_UART_Transmit(&huart1, (uint8_t*) str_acel2, sizeof(str_acel2),
-				1000);
-		HAL_UART_Transmit(&huart1, (uint8_t*) str_acel3, sizeof(str_acel3),
-				1000);
+		snprintf(str_acel3, 100, " ACEL_Z = %d.%02d\n\n\r", acelZInt1, acelZInt2);
+		HAL_UART_Transmit(&huart1, (uint8_t*) str_acel1, sizeof(str_acel1),1000);
+		HAL_UART_Transmit(&huart1, (uint8_t*) str_acel2, sizeof(str_acel2),1000);
+		HAL_UART_Transmit(&huart1, (uint8_t*) str_acel3, sizeof(str_acel3),1000);
 
 
-		//Valores em RMS
+		/*// Criação do buffer do acelerometro x
 
-		// Criação do buffer de temperatura
+		int buf_acX[10] = {};
+		int j = 0;
+		bool fullArray2 = false;
+		float new_temp = 0;
 
+		buf_acX[i] = temp_value;
+		i++;
 
-
-			buf_temp[i] = temp_value;
-			i++;
-
-			if(fullArray){
-				new_temp = valorRMS(buf_temp, 10);
-			}
-			else{
-				new_temp = valorRMS(buf_temp,i);
-		 }
-
-			if(i == 10){
-				i = 0;
-				fullArray = true;
-			}
-
-
-		int NtmpInt1 = new_temp;
-		float NtmpFrac = new_temp - NtmpInt1;
-		int NtmpInt2 = trunc(NtmpFrac * 100);
-		snprintf(str_tmp2, 100, " RMS TEMPERATURE = %d.%02d\n\r", NtmpInt1, NtmpInt2);
-		HAL_UART_Transmit(&huart1, (uint8_t*) str_tmp2, sizeof(str_tmp2), 1000);
-}
-
-	/*
-	// Criação do buffer de temperatura
-
-			int buf_temp[10] = {};
-			int i = 0;
-			bool fullArray = false;
-			// float new_temp = 0;
-
-				buf_temp[i] = temp_value;
-				i++;
-
-				if(fullArray){
-					float new_temp = valorRMS(buf_temp, 10);
-				}
-				else{
-					float new_temp = valorRMS(buf_temp,i);
-				}
-
-				if(i == 10){
-					i = 0;
-					fullArray = true;
-				}
-			}
-
-// Criação do buffer de temperatura
-
-		int buf_temp[10] = {};
-		int i = 0;
-		bool fullArray = false;
-		// float new_temp = 0;
-
-			buf_temp[i] = temp_value;
-			i++;
-
-			if(fullArray){
-				float new_temp = valorRMS(buf_temp, 10);
-			}
-			else{
-				float new_temp = valorRMS(buf_temp,i);
-			}
-
-			if(i == 10){
-				i = 0;
-				fullArray = true;
-			}
+		if(fullArray){
+			float new_acX = valorRMS(buf_acX, 10);
+		}
+		else{
+			float new_acX = valorRMS(buf_acX,i);
 		}
 
-*/
+		if(i == 10){
+			i = 0;
+			fullArray = true;
+		}
+
+
+		// Criação do buffer do acelerometro y
+
+		int buf_acY[10] = {};
+		int j = 0;
+		bool fullArray2 = false;
+		float new_temp = 0;
+
+		buf_acY[i] = temp_value;
+		i++;
+
+		if(fullArray){
+			float new_acY = valorRMS(buf_acY, 10);
+		}
+		else{
+			float new_acY = valorRMS(buf_acY,i);
+		}
+
+		if(i == 10){
+			i = 0;
+			fullArray = true;
+		}
+
+
+
+		// Criação do buffer do acelerometro z
+
+			int buf_acx[10] = {};
+		int j = 0;
+		bool fullArray2 = false;
+		float new_temp = 0;
+
+		buf_acx[i] = temp_value;
+		i++;
+
+		if(fullArray){
+			float new_acx = valorRMS(buf_acx, 10);
+		}
+		else{
+			float new_acx = valorRMS(buf_acx,i);
+		}
+
+		if(i == 10){
+			i = 0;
+			fullArray = true;
+		}
+
+	*/
 		//Display oled i2c
 
-		ssd1306_SetCursor(0, 0);
-		// ssd1306_WriteString(str_tmp, Font_6x8, Black);
-		// ssd1306_WriteString(new_temp, Font_6x8, Black);
-		ssd1306_SetCursor(0, 10);
-		ssd1306_WriteString(str_acel1, Font_6x8, Black);
-		ssd1306_SetCursor(0,20);
-		ssd1306_WriteString(str_acel2, Font_6x8, Black);
+		ssd1306_Fill(White);
+	    ssd1306_SetCursor(0, 10);
+		ssd1306_WriteString("TEMPERATURA", Font_6x8, Black);
+		ssd1306_SetCursor(0, 20);
+		ssd1306_WriteString(min_temp, Font_6x8, Black);
 		ssd1306_SetCursor(0, 30);
-		ssd1306_WriteString(str_acel3, Font_6x8, Black);
+		ssd1306_WriteString(max_temp, Font_6x8, Black);
 		ssd1306_UpdateScreen();
-		HAL_Delay(1000);
-
-
-
-
-/*
-
-		ssd1306_SetCursor(0, 0);
-	    ssd1306_WriteString(str_tmp, Font_6x8, Black);
-		ssd1306_SetCursor(0, 10);
-		ssd1306_WriteString(str_tmp2, Font_6x8, Black);
+		HAL_Delay(3000);
+		/*ssd1306_SetCursor(0, 10);
+		ssd1306_WriteString("ACELEROMETRO", Font_6x8, Black);
+		ssd1306_SetCursor(0, 20);
+		ssd1306_WriteString("MIN = ", Font_6x8, Black);
+		ssd1306_SetCursor(0, 30);
+		ssd1306_WriteString("MAX = ", Font_6x8, Black);
 		ssd1306_UpdateScreen();
-		HAL_Delay(1000);*/
+		HAL_Delay(3000);*/
+}
 
 	}
   /* USER CODE END 3 */
@@ -627,6 +662,41 @@ static void MX_USART1_UART_Init(void)
 }
 
 /**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
   * @brief USART3 Initialization Function
   * @param None
   * @retval None
@@ -744,8 +814,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : USB_OTG_FS_OVRCR_EXTI3_Pin SPSGRF_915_GPIO3_EXTI5_Pin SPBTLE_RF_IRQ_EXTI6_Pin ISM43362_DRDY_EXTI1_Pin */
-  GPIO_InitStruct.Pin = USB_OTG_FS_OVRCR_EXTI3_Pin|SPSGRF_915_GPIO3_EXTI5_Pin|SPBTLE_RF_IRQ_EXTI6_Pin|ISM43362_DRDY_EXTI1_Pin;
+  /*Configure GPIO pins : SPSGRF_915_GPIO3_EXTI5_Pin SPBTLE_RF_IRQ_EXTI6_Pin ISM43362_DRDY_EXTI1_Pin */
+  GPIO_InitStruct.Pin = SPSGRF_915_GPIO3_EXTI5_Pin|SPBTLE_RF_IRQ_EXTI6_Pin|ISM43362_DRDY_EXTI1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
@@ -801,11 +871,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : ARD_D3_Pin */
-  GPIO_InitStruct.Pin = ARD_D3_Pin;
+  /*Configure GPIO pins : ARD_D3_Pin PB3 */
+  GPIO_InitStruct.Pin = ARD_D3_Pin|GPIO_PIN_3;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(ARD_D3_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ARD_D6_Pin */
   GPIO_InitStruct.Pin = ARD_D6_Pin;
@@ -858,15 +928,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
   HAL_GPIO_Init(PMOD_SPI2_SCK_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PMOD_UART2_CTS_Pin PMOD_UART2_RTS_Pin PMOD_UART2_TX_Pin PMOD_UART2_RX_Pin */
-  GPIO_InitStruct.Pin = PMOD_UART2_CTS_Pin|PMOD_UART2_RTS_Pin|PMOD_UART2_TX_Pin|PMOD_UART2_RX_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI3_IRQn);
+
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
