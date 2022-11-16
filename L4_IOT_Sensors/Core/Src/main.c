@@ -1,5 +1,5 @@
 /* USER CODE BEGIN Header */
-/**
+/**oi
  ******************************************************************************
  * @file           : main.c
  * @brief          : Main program body
@@ -18,8 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stdbool.h"
-#include "stdio.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -31,6 +30,7 @@
 #include "stm32l475e_iot01.h"
 #include <math.h>
 #include <stdio.h>
+#include "stdbool.h"
 
 //Temperature sensor
 #include "stm32l475e_iot01_tsensor.h"
@@ -81,6 +81,11 @@ char str_tmp[100] = ""; // Formatted message to display the temperature value
 char str_tmp2[100] = "";
 char min_temp[10] = "";
 char max_temp[10] = "";
+char min_acx[10] = "";
+char max_acx[10] = "";
+char str_acx[100]="";
+char str_acy[100]="";
+char str_acz[100]="";
 uint8_t msg1[] = "****** Temperature values measurement ******\n\n\r";
 uint8_t msg2[] = "=====> Initialize Temperature sensor HTS221 \r\n";
 uint8_t msg3[] = "=====> Temperature sensor HTS221 initialized \r\n ";
@@ -94,6 +99,9 @@ uint8_t msg7[] = "****** Acelerometer values measurement ******\n\n\r";
 uint8_t msg8[] = "=====> Initialize Acelerometer sensor HTS221 \r\n";
 uint8_t msg9[] = "=====> Acelerometer sensor LSM6DSL initialized \r\n ";
 
+//Interruptions
+//uint8_t flag=0;
+bool flag =false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -169,10 +177,6 @@ int main(void)
 	HAL_UART_Transmit(&huart1, msg9, sizeof(msg9), 1000);
 
 
-
-	// Interrupções
-
-
 	//Display oled i2c
 	ssd1306_Init();
 
@@ -182,9 +186,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 	float buf_temp[10] = {};
-	int i = 0;
-	bool fullArray1 = false;
+	float buf_ac[3][10] = {};
+	int i = 0,j = 0;
+	bool fullArray1 = false,fullArray2 = false;
 	float new_temp = 0;
+	float new_acX = 0;
+	float new_acY = 0;
+	float new_acZ = 0;
 
 	while (1) {
     /* USER CODE END WHILE */
@@ -202,45 +210,42 @@ int main(void)
 		//Valores em RMS
 		// Criação do buffer de temperatura
 
-			buf_temp[i] = temp_value;
-			float min =buf_temp[0],max =buf_temp[0];
-			i++;
+		buf_temp[i] = temp_value;
+		float min =buf_temp[0],max =buf_temp[0];
+		i++;
 
-			if(fullArray1){
-				new_temp = valorRMS(buf_temp, 10);
-			}
-			else{
-				new_temp = valorRMS(buf_temp,i);
+		if(fullArray1){
+			new_temp = valorRMS(buf_temp, 10);
+		}
+		else{
+			new_temp = valorRMS(buf_temp,i);
 		 }
-
-			if(i == 10){
-				i = 0;
-				fullArray1 = true;
-			}
-			if(buf_temp[i] > max ){
-				//min = buf_temp[i-1];
-				max = buf_temp[i];
-			}
-			if( buf_temp[i]< min ){
-				min = buf_temp[i];
-				//max =  buf_temp[i-1];
-			}
+		if(i == 10){
+			i = 0;
+			fullArray1 = true;
+		}
+		if(buf_temp[i] > max ){
+			max = buf_temp[i];
+		}
+		if( buf_temp[i]< min ){
+			min = buf_temp[i];
+		}
 
 		int min1 = min;
 		float minFrac = min - min1;
 		int min2 = trunc(minFrac * 100);
 
-		int max1 = min;
+		int max1 = max;
 		float maxFrac = max - max1;
 		int max2 = trunc(maxFrac * 100);
 
 
-		snprintf(str_tmp2, 100, "TEMPERATURE = %d.%02d\n\r", tmpInt1, tmpInt2);
-		snprintf(min_temp, 100, "MIN = %d.%02d\n\r", min1, min2);
+		snprintf(str_tmp2, 100, "RMS = %d.%02d\n\r", tmpInt1, tmpInt2);
+		snprintf(min_temp, 100, "MIN = %d.%02d\n\r", min1,min2);
 		snprintf(max_temp, 100, "MAX = %d.%02d\n\r", max1, max2);
 		HAL_UART_Transmit(&huart1, (uint8_t*) str_tmp2, sizeof(str_tmp2), 1000);
-
-
+		HAL_UART_Transmit(&huart1, (uint8_t*) min_temp, sizeof(str_tmp2), 1000);
+		HAL_UART_Transmit(&huart1, (uint8_t*) max_temp, sizeof(str_tmp2), 1000);
 
 		//Accelerometer Sensor
 		BSP_ACCELERO_AccGetXYZ(acelerometer_value);
@@ -264,76 +269,66 @@ int main(void)
 		HAL_UART_Transmit(&huart1, (uint8_t*) str_acel3, sizeof(str_acel3),1000);
 
 
-		/*// Criação do buffer do acelerometro x
+		// Criação do buffer do acelerometro x,y,z
 
-		int buf_acX[10] = {};
-		int j = 0;
-		bool fullArray2 = false;
-		float new_temp = 0;
+		float min_ax =buf_ac[0][j],max_ax =buf_ac[0][j];
 
-		buf_acX[i] = temp_value;
-		i++;
+		buf_ac[0][j] = acelerometer_value[0];
+		buf_ac[1][j] = acelerometer_value[1];
+		buf_ac[2][j] = acelerometer_value[2];
+		j++;
 
-		if(fullArray){
-			float new_acX = valorRMS(buf_acX, 10);
+		if(fullArray2){
+			new_acX = valorRMS(buf_ac[0], 10);
+			new_acY = valorRMS(buf_ac[1], 10);
+			new_acZ = valorRMS(buf_ac[2], 10);
 		}
 		else{
-			float new_acX = valorRMS(buf_acX,i);
+			new_acX = valorRMS(buf_ac[0], j);
+			new_acY = valorRMS(buf_ac[1], j);
+			new_acZ = valorRMS(buf_ac[2], j);
 		}
 
-		if(i == 10){
-			i = 0;
-			fullArray = true;
+		if(j == 10){
+			j = 0;
+			fullArray2 = true;
 		}
 
-
-		// Criação do buffer do acelerometro y
-
-		int buf_acY[10] = {};
-		int j = 0;
-		bool fullArray2 = false;
-		float new_temp = 0;
-
-		buf_acY[i] = temp_value;
-		i++;
-
-		if(fullArray){
-			float new_acY = valorRMS(buf_acY, 10);
+		//min-max ace_x
+		if(buf_ac[0][j] > max_ax ){
+			max_ax = buf_ac[0][j];
 		}
-		else{
-			float new_acY = valorRMS(buf_acY,i);
+		if(buf_ac[0][j]< min_ax ){
+			min_ax = buf_ac[0][j];
 		}
 
-		if(i == 10){
-			i = 0;
-			fullArray = true;
-		}
+		int min_ax1 = min_ax;
+		float minFracX = min_ax - min_ax1;
+		int min_ax2 = trunc(minFracX * 100);
 
+		int max_ax1 = max_ax;
+		float maxFracX = max_ax - max1;
+		int max_ax2 = trunc(maxFracX * 100);
 
+		snprintf(min_acx, 100, "MIN = %d.%02d\n\r", min_ax1,min_ax2);
+		snprintf(max_acx, 100, "MAX = %d.%02d\n\r",max_ax1, max_ax2);
 
-		// Criação do buffer do acelerometro z
+		int acx = new_acX;
+		float acxFrac = acx - new_acX;
+		int rmsAcx = trunc(acxFrac * 100);
 
-			int buf_acx[10] = {};
-		int j = 0;
-		bool fullArray2 = false;
-		float new_temp = 0;
+		int acy = new_acY;
+		float acyFrac = acy - new_acY;
+		int rmsAcy = trunc(acyFrac * 100);
 
-		buf_acx[i] = temp_value;
-		i++;
+		int acz = new_acZ;
+		float aczFrac = acx - new_acX;
+		int rmsAcz = trunc(aczFrac * 100);
 
-		if(fullArray){
-			float new_acx = valorRMS(buf_acx, 10);
-		}
-		else{
-			float new_acx = valorRMS(buf_acx,i);
-		}
+		snprintf(str_acx, 100, " RMS_X = %d.%02d\n\n\r", acx, rmsAcx);
+		snprintf(str_acy, 100, " RMS_Y = %d.%02d\n\n\r", acy, rmsAcy);
+		snprintf(str_acz, 100, " RMS_Z = %d.%02d\n\n\r", acz, rmsAcz);
 
-		if(i == 10){
-			i = 0;
-			fullArray = true;
-		}
-
-	*/
 		//Display oled i2c
 
 		ssd1306_Fill(White);
@@ -345,14 +340,58 @@ int main(void)
 		ssd1306_WriteString(max_temp, Font_6x8, Black);
 		ssd1306_UpdateScreen();
 		HAL_Delay(3000);
-		/*ssd1306_SetCursor(0, 10);
-		ssd1306_WriteString("ACELEROMETRO", Font_6x8, Black);
+
+		ssd1306_Fill(White);
+		ssd1306_SetCursor(0, 10);
+		ssd1306_WriteString("ACELERACAO X:", Font_6x8, Black);
 		ssd1306_SetCursor(0, 20);
-		ssd1306_WriteString("MIN = ", Font_6x8, Black);
-		ssd1306_SetCursor(0, 30);
-		ssd1306_WriteString("MAX = ", Font_6x8, Black);
+		ssd1306_WriteString(str_acx, Font_6x8, Black);
+		/*ssd1306_SetCursor(0, 30);
+		ssd1306_WriteString(min_acx, Font_6x8, Black);
+		ssd1306_SetCursor(0, 40);
+		ssd1306_WriteString(max_acx, Font_6x8, Black);*/
 		ssd1306_UpdateScreen();
-		HAL_Delay(3000);*/
+		HAL_Delay(3000);
+
+		ssd1306_Fill(White);
+		ssd1306_SetCursor(0, 10);
+		ssd1306_WriteString("ACELERACAO Y:", Font_6x8, Black);
+		ssd1306_SetCursor(0, 20);
+		ssd1306_WriteString(str_acy, Font_6x8, Black);
+		ssd1306_UpdateScreen();
+		HAL_Delay(3000);
+
+		ssd1306_Fill(White);
+		ssd1306_SetCursor(0, 10);
+		ssd1306_WriteString("ACELERACAO Z:", Font_6x8, Black);
+		ssd1306_SetCursor(0, 20);
+		ssd1306_WriteString(str_acz, Font_6x8, Black);
+		ssd1306_UpdateScreen();
+		HAL_Delay(3000);
+
+		// Interrupção
+		if(flag == true){
+			//HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+			MX_GPIO_Init();
+			min=0;
+			max=0;
+			temp_value=0;
+			tmpInt1=0;
+			tmpInt2=0;
+			min_temp[10]=0;
+			max_temp[10]=0;
+			ssd1306_Fill(White);
+			ssd1306_SetCursor(0, 10);
+			ssd1306_WriteString("TEMPERATURA", Font_6x8, Black);
+			ssd1306_SetCursor(0, 20);
+			ssd1306_WriteString(min_temp, Font_6x8, Black);
+			ssd1306_SetCursor(0, 30);
+			ssd1306_WriteString(max_temp, Font_6x8, Black);
+			HAL_Delay(2000);
+
+
+		}
+
 }
 
 	}
@@ -391,7 +430,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
   RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 40;
+  RCC_OscInitStruct.PLL.PLLN = 36;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -473,7 +512,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x00702991;
+  hi2c1.Init.Timing = 0x00702681;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -521,7 +560,7 @@ static void MX_I2C2_Init(void)
 
   /* USER CODE END I2C2_Init 1 */
   hi2c2.Instance = I2C2;
-  hi2c2.Init.Timing = 0x00702991;
+  hi2c2.Init.Timing = 0x00702681;
   hi2c2.Init.OwnAddress1 = 0;
   hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -786,7 +825,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOE, M24SR64_Y_RF_DISABLE_Pin|M24SR64_Y_GPO_Pin|ISM43362_RST_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, ARD_D10_Pin|SPBTLE_RF_RST_Pin|ARD_D9_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, ARD_D10_Pin|LED_GREEN_Pin|LED_GREEN_Pin|GPIO_PIN_8|ARD_D9_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, ARD_D8_Pin|ISM43362_BOOT0_Pin|ISM43362_WAKEUP_Pin|LED2_Pin
@@ -820,11 +859,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : BUTTON_EXTI13_Pin */
-  GPIO_InitStruct.Pin = BUTTON_EXTI13_Pin;
+  /*Configure GPIO pin : BLUE_BUTTON_Pin */
+  GPIO_InitStruct.Pin = BLUE_BUTTON_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BUTTON_EXTI13_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(BLUE_BUTTON_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ARD_A5_Pin ARD_A4_Pin ARD_A3_Pin ARD_A2_Pin
                            ARD_A1_Pin ARD_A0_Pin */
@@ -842,8 +881,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ARD_D10_Pin SPBTLE_RF_RST_Pin ARD_D9_Pin */
-  GPIO_InitStruct.Pin = ARD_D10_Pin|SPBTLE_RF_RST_Pin|ARD_D9_Pin;
+  /*Configure GPIO pins : ARD_D10_Pin LED_GREEN_Pin LED_RED_Pin PA8
+                           ARD_D9_Pin */
+  GPIO_InitStruct.Pin = ARD_D10_Pin|LED_GREEN_Pin|LED_GREEN_Pin|GPIO_PIN_8
+                          |ARD_D9_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -863,19 +904,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ARD_D7_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ARD_D13_Pin ARD_D12_Pin ARD_D11_Pin */
-  GPIO_InitStruct.Pin = ARD_D13_Pin|ARD_D12_Pin|ARD_D11_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : ARD_D3_Pin PB3 */
-  GPIO_InitStruct.Pin = ARD_D3_Pin|GPIO_PIN_3;
+  /*Configure GPIO pin : PA7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : ARD_D3_Pin */
+  GPIO_InitStruct.Pin = ARD_D3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(ARD_D3_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ARD_D6_Pin */
   GPIO_InitStruct.Pin = ARD_D6_Pin;
@@ -914,11 +953,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : VL53L0X_GPIO1_EXTI7_Pin LSM3MDL_DRDY_EXTI8_Pin */
-  GPIO_InitStruct.Pin = VL53L0X_GPIO1_EXTI7_Pin|LSM3MDL_DRDY_EXTI8_Pin;
+  /*Configure GPIO pin : LSM3MDL_DRDY_EXTI8_Pin */
+  GPIO_InitStruct.Pin = LSM3MDL_DRDY_EXTI8_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(LSM3MDL_DRDY_EXTI8_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PMOD_SPI2_SCK_Pin */
   GPIO_InitStruct.Pin = PMOD_SPI2_SCK_Pin;
@@ -927,6 +966,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
   HAL_GPIO_Init(PMOD_SPI2_SCK_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB3 */
+  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI3_IRQn, 0, 0);
@@ -941,7 +986,17 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+	flag=~flag;
+	if(GPIO_Pin == BLUE_BUTTON_Pin) {
+	    HAL_GPIO_WritePin(GPIOA,LED_GREEN_Pin, GPIO_PIN_SET);
+	    //HAL_Delay(1000);
+	    flag=~flag;
+	  } else {
+		  HAL_GPIO_WritePin(GPIOA,LED_GREEN_Pin, GPIO_PIN_RESET);
+		  //HAL_Delay(1000);
+	  }
+}
 /* USER CODE END 4 */
 
 /**

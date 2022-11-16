@@ -8,6 +8,6 @@
 #ifndef INC_VALORRMS_H_
 #define INC_VALORRMS_H_
 
-float valorRMS (int sinal[],int tam);
+float valorRMS (float sinal[],int tam);
 
 #endif /* INC_VALORRMS_H_ */

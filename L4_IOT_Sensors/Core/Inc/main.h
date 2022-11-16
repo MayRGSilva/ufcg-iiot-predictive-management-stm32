@@ -67,9 +67,9 @@ void Error_Handler(void);
 #define SPBTLE_RF_IRQ_EXTI6_Pin GPIO_PIN_6
 #define SPBTLE_RF_IRQ_EXTI6_GPIO_Port GPIOE
 #define SPBTLE_RF_IRQ_EXTI6_EXTI_IRQn EXTI9_5_IRQn
-#define BUTTON_EXTI13_Pin GPIO_PIN_13
-#define BUTTON_EXTI13_GPIO_Port GPIOC
-#define BUTTON_EXTI13_EXTI_IRQn EXTI15_10_IRQn
+#define BLUE_BUTTON_Pin GPIO_PIN_13
+#define BLUE_BUTTON_GPIO_Port GPIOC
+#define BLUE_BUTTON_EXTI_IRQn EXTI15_10_IRQn
 #define ARD_A5_Pin GPIO_PIN_0
 #define ARD_A5_GPIO_Port GPIOC
 #define ARD_A4_Pin GPIO_PIN_1
@@ -88,8 +88,8 @@ void Error_Handler(void);
 #define ARD_D4_GPIO_Port GPIOA
 #define ARD_D7_Pin GPIO_PIN_4
 #define ARD_D7_GPIO_Port GPIOA
-#define ARD_D13_Pin GPIO_PIN_5
-#define ARD_D13_GPIO_Port GPIOA
+#define LED_GREEN_Pin GPIO_PIN_5
+#define LED_GREEN_GPIO_Port GPIOA
 #define ARD_D12_Pin GPIO_PIN_6
 #define ARD_D12_GPIO_Port GPIOA
 #define ARD_D11_Pin GPIO_PIN_7
@@ -174,10 +174,6 @@ void Error_Handler(void);
 #define USB_OTG_FS_DM_GPIO_Port GPIOA
 #define USB_OTG_FS_DP_Pin GPIO_PIN_12
 #define USB_OTG_FS_DP_GPIO_Port GPIOA
-#define SYS_JTMS_SWDIO_Pin GPIO_PIN_13
-#define SYS_JTMS_SWDIO_GPIO_Port GPIOA
-#define SYS_JTCK_SWCLK_Pin GPIO_PIN_14
-#define SYS_JTCK_SWCLK_GPIO_Port GPIOA
 #define ARD_D9_Pin GPIO_PIN_15
 #define ARD_D9_GPIO_Port GPIOA
 #define INTERNAL_SPI3_SCK_Pin GPIO_PIN_10
