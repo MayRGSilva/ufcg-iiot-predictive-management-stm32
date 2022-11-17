@@ -83,6 +83,10 @@ char min_temp[10] = "";
 char max_temp[10] = "";
 char min_acx[10] = "";
 char max_acx[10] = "";
+char min_acy[10] = "";
+char max_acy[10] = "";
+char min_acz[10] = "";
+char max_acz[10] = "";
 char str_acx[100] = "";
 char str_acy[100] = "";
 char str_acz[100] = "";
@@ -100,8 +104,8 @@ uint8_t msg8[] = "=====> Initialize Acelerometer sensor HTS221 \r\n";
 uint8_t msg9[] = "=====> Acelerometer sensor LSM6DSL initialized \r\n ";
 
 // Interruptions
-uint8_t flag=0x00;
-//bool flag = true;
+
+bool flag = false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -192,11 +196,10 @@ int main(void)
   float new_acX = 0;
   float new_acY = 0;
   float new_acZ = 0;
-  float max = 50,min = 50;
 
   while (1)
   {
-	 max = buf_temp[0];
+	  float min = buf_temp[0], max = buf_temp[0];
 
     /* USER CODE END WHILE */
 
@@ -210,9 +213,9 @@ int main(void)
       int tmpInt2 = trunc(tmpFrac * 100);
      // snprintf(str_tmp, 100, " TEMPERATURE = %d.%02d\n\r", tmpInt1, tmpInt2);
      // HAL_UART_Transmit(&huart1, (uint8_t *)str_tmp, sizeof(str_tmp), 1000);
-      if (flag == 0x00){
+      if (flag == false){
       // Valores em RMS
-      //  CriaÃ§Ã£o do buffer de temperatura
+      //  Criação do buffer de temperatura
 
       buf_temp[i] = temp_value;
       //float min = buf_temp[0], max = buf_temp[0];
@@ -278,7 +281,9 @@ int main(void)
 
       // CriaÃ§Ã£o do buffer do acelerometro x,y,z
 
-      float min_ax = buf_ac[0][j], max_ax = buf_ac[0][j];
+      int min_ax = buf_ac[0][j], max_ax = buf_ac[0][j];
+      int min_ay = buf_ac[1][j], max_ay = buf_ac[1][j];
+      int min_az = buf_ac[2][j], max_az = buf_ac[2][j];
 
       buf_ac[0][j] = acelerometer_value[0];
       buf_ac[1][j] = acelerometer_value[1];
@@ -304,27 +309,39 @@ int main(void)
         fullArray2 = true;
       }
 
-      // min-max ace_x
-      if (buf_ac[0][j] > max_ax)
-      {
+      // min-max eixo x
+      if (buf_ac[0][j] > max_ax){
         max_ax = buf_ac[0][j];
       }
-      if (buf_ac[0][j] < min_ax)
-      {
+      if (buf_ac[0][j] < min_ax){
         min_ax = buf_ac[0][j];
       }
 
-      int min_ax1 = min_ax;
-      float minFracX = min_ax - min_ax1;
-      int min_ax2 = trunc(minFracX * 100);
+      snprintf(min_acx, 100, "MIN=%d\n\r", min_ax);
+      snprintf(max_acx, 100, "MAX=%d\n\r",max_ax);
 
-      int max_ax1 = max_ax;
-      float maxFracX = max1 - max_ax;
-      int max_ax2 = trunc(maxFracX * 100);
 
-      snprintf(min_acx, 100, "MIN=%d.%02d\n\r", min_ax1, min_ax2);
-      snprintf(max_acx, 100, "MAX=%d.%02d\n\r", max_ax1, 0);// no display aparece um numero com
-      // 4 casas decimais. acredito que tenha algum erro na manipulação das variáveis
+      // min-max eixo y
+      if (buf_ac[0][j] > max_ay){
+    	  max_ay = buf_ac[0][j];
+      }
+      if (buf_ac[0][j] < min_ay){
+    	  min_ay = buf_ac[0][j];
+      }
+
+      snprintf(min_acy, 100, "MIN=%d\n\r", min_ay);
+      snprintf(max_acy, 100, "MAX=%d\n\r",max_ay);
+
+      // min-max eixo y
+      if (buf_ac[0][j] > max_ay){
+    	  max_az = buf_ac[0][j];
+      }
+      if (buf_ac[0][j] < min_ay){
+         min_az = buf_ac[0][j];
+      }
+
+      snprintf(min_acz, 100, "MIN=%d\n\r", min_az);
+      snprintf(max_acz, 100, "MAX=%d\n\r",max_az);
 
       int acx = new_acX;
       float acxFrac = acx - new_acX;
@@ -348,11 +365,13 @@ int main(void)
       ssd1306_SetCursor(0, 10);
       ssd1306_WriteString("TEMPERATURAbla", Font_6x8, Black);
       ssd1306_SetCursor(0, 20);
-      ssd1306_WriteString(min_temp, Font_6x8, Black);
+      ssd1306_WriteString(str_tmp2, Font_6x8, Black);
       ssd1306_SetCursor(0, 30);
+      ssd1306_WriteString(min_temp, Font_6x8, Black);
+      ssd1306_SetCursor(0, 40);
       ssd1306_WriteString(max_temp, Font_6x8, Black);
       ssd1306_UpdateScreen();
-      HAL_Delay(3000);
+      HAL_Delay(2000);
 
       ssd1306_Fill(White);
       ssd1306_SetCursor(0, 10);
@@ -364,23 +383,31 @@ int main(void)
       ssd1306_SetCursor(0, 40);
       ssd1306_WriteString(max_acx, Font_6x8, Black);
       ssd1306_UpdateScreen();
-      HAL_Delay(3000);
+      HAL_Delay(2000);
 
       ssd1306_Fill(White);
       ssd1306_SetCursor(0, 10);
       ssd1306_WriteString("ACELERACAO Y:", Font_6x8, Black);
       ssd1306_SetCursor(0, 20);
       ssd1306_WriteString(str_acy, Font_6x8, Black);
+      ssd1306_SetCursor(0, 30);
+      ssd1306_WriteString(min_acy, Font_6x8, Black);
+      ssd1306_SetCursor(0, 40);
+      ssd1306_WriteString(max_acy, Font_6x8, Black);
       ssd1306_UpdateScreen();
-      HAL_Delay(3000);
+      HAL_Delay(2000);
 
       ssd1306_Fill(White);
       ssd1306_SetCursor(0, 10);
       ssd1306_WriteString("ACELERACAO Z:", Font_6x8, Black);
       ssd1306_SetCursor(0, 20);
       ssd1306_WriteString(str_acz, Font_6x8, Black);
+      ssd1306_SetCursor(0, 30);
+      ssd1306_WriteString(min_acz, Font_6x8, Black);
+      ssd1306_SetCursor(0, 40);
+      ssd1306_WriteString(max_acz, Font_6x8, Black);
       ssd1306_UpdateScreen();
-      HAL_Delay(3000);
+      HAL_Delay(2000);
     }
     else
     {
@@ -388,9 +415,15 @@ int main(void)
       temp_value = 0;
       tmpInt1 = 0;
       tmpInt2 = 0;
-
       snprintf(min_temp, 100, "MIN = %d.%02d\n\r", 0, 0);
       snprintf(max_temp, 100, "MAX = %d.%02d\n\r", 0, 0);
+      snprintf(min_acx, 100, "MIN=%d\n\r", 0);
+      snprintf(max_acx, 100, "MAX=%d\n\r",0);
+      snprintf(min_acy, 100, "MIN=%d\n\r",0);
+      snprintf(max_acy, 100, "MAX=%d\n\r",0);
+      snprintf(min_acz, 100, "MIN=%d\n\r", 0);
+      snprintf(max_acz, 100, "MAX=%d\n\r",0);
+
       ssd1306_Fill(White);
       ssd1306_SetCursor(0, 10);
       ssd1306_WriteString("TEMPERATURA", Font_6x8, Black);
@@ -399,7 +432,30 @@ int main(void)
       ssd1306_SetCursor(0, 30);
       ssd1306_WriteString(max_temp, Font_6x8, Black);
       ssd1306_UpdateScreen();
+      ssd1306_SetCursor(0, 10);
+      ssd1306_WriteString("ACELERACAO X:", Font_6x8, Black);
+      ssd1306_SetCursor(0, 20);
+      ssd1306_WriteString(min_acx, Font_6x8, Black);
+      ssd1306_SetCursor(0,30);
+      ssd1306_WriteString(max_acx, Font_6x8, Black);
       HAL_Delay(2000);
+      ssd1306_UpdateScreen();
+      ssd1306_SetCursor(0, 10);
+      ssd1306_WriteString("ACELERACAO Y:", Font_6x8, Black);
+      ssd1306_SetCursor(0, 20);
+      ssd1306_WriteString(min_acy, Font_6x8, Black);
+      ssd1306_SetCursor(0, 30);
+      ssd1306_WriteString(max_acy, Font_6x8, Black);
+      HAL_Delay(2000);
+      ssd1306_UpdateScreen();
+      ssd1306_SetCursor(0, 10);
+      ssd1306_WriteString("ACELERACAO Z:", Font_6x8, Black);
+      ssd1306_SetCursor(0, 20);
+      ssd1306_WriteString(min_acz, Font_6x8, Black);
+      ssd1306_SetCursor(0, 30);
+      ssd1306_WriteString(max_acz, Font_6x8, Black);
+      HAL_Delay(2000);
+      ssd1306_UpdateScreen();
     }
   }
 }
@@ -990,7 +1046,7 @@ HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   if (GPIO_Pin == BLUE_BUTTON_Pin)
   {
 	//HAL_Delay(5000);
-    flag = ~flag;
+    flag = !flag;
 
   }
 
